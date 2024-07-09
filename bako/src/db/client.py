@@ -14,14 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import pymongo
 from typing import Optional
+import pymongo
 from bako.utils import config as cfg
 
 
 def client_connect(
-    client_name: str = cfg.DEV_CLIENT_NAME, 
-    db_uri: str = cfg.DEV_CLUSTER_URI
+    client_name: str = cfg.DEV_CLIENT_NAME,
+    db_uri: str = cfg.CLUSTER_URI
 ) -> Optional[pymongo.MongoClient]:
     """
     Function for connecting to a MongoDB Client
@@ -31,20 +31,20 @@ def client_connect(
             db_uri, serverSelectionTimeoutMS=5000)
         client.admin.command("ismaster")
         return client[client_name]
-    except (
-        pymongo.errors.ServerSelectionTimeoutError, Exception) as e:
+    except (pymongo.errors.ServerSelectionTimeoutError, Exception) as e:
+        print(f"Exception '{e}' occured when trying to connect to MongoDB")
         return None
 
 
 def collection(
-    collection_name: str, client_name: str
+    collection_name: str, client_name: str = cfg.DEV_CLIENT_NAME
 ) -> Optional[pymongo.collection.Collection]:
     """
     Collection retrieval / Creation function
     """
     client = client_connect(client_name=client_name)
 
-    if client:
+    if client is not None:
         db = client.get_database()
         if collection_name in db.list_collection_names():
             return db[collection_name]

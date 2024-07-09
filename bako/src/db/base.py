@@ -14,11 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import client
-import pymongo
-from pymongo.typings import _DocumentType
 from typing import Union, Optional, Any
-
+from pymongo.typings import _DocumentType
+import pymongo
+import bako.src.db.client as client
 
 class BakoModel(object):
     """
@@ -41,21 +40,20 @@ class BakoModel(object):
 
         self.collection = client.collection(collection, client_name)
 
-        if(not self.collection): # FIXME: yields error None comparison
-            # TODO: log error
-            raise Exception(
-                "Handshake error, unable to access")
+        if not self.collection: # FIXME: yields error None comparison
+            # TODO log error
+            raise Exception("Handshake error, unable to access")
 
         self.model_fields = kwargs
         self.selected = None # FIXME: cursor selected (item)
 
-        for attr in kwargs:
-            self.__setattr__(attr, kwargs[attr])
+        for attr, value in kwargs.items():
+            self.__setattr__(attr, value)
 
     def create(
-            self, 
+            self,
             data: dict,
-            *, 
+            *,
             unique: Optional[str]=None) -> Union[None, pymongo.results.InsertOneResult]:
         """
         Create collection document
@@ -74,7 +72,7 @@ class BakoModel(object):
             return self.collection.insert_one(data)
         return None
 
-    def retrieve(self, filter: dict=None) -> Union[None, _DocumentType]:
+    def retrieve(self, fil: dict=None) -> Union[None, _DocumentType]:
         """
         Retrieve a single document
 
@@ -85,9 +83,9 @@ class BakoModel(object):
             None: On item not found or collection error
             _DocumentType: pymongo Document type
         """
-        return self.collection.find_one(filter)
+        return self.collection.find_one(fil)
 
-    def retrieve_all(self, filter: dict=None) -> Optional[list]:
+    def retrieve_all(self, fil: dict=None) -> Optional[list]:
         """
         Retrieve all documents or all documents matching filter
 
@@ -98,17 +96,17 @@ class BakoModel(object):
             None: On collection error
             list: list of _DocumentType (dicts)
         """
-        return list[self.collection.find(filter)]
+        return list[self.collection.find(fil)]
 
-    def update(self, filter, update_data):
+    def update(self, fil, update_data):
         """
         """
-        return self.collection.update_one(filter, {"$set": update_data})
+        return self.collection.update_one(fil, {"$set": update_data})
 
-    def delete(self, filter):
+    def delete(self, fil):
         """
         """
-        return self.collection.delete_many(filter)
+        return self.collection.delete_many(fil)
 
     def document(self, **kwargs) -> dict:
         """
