@@ -45,7 +45,7 @@ def collection(
     client = client_connect(client_name=client_name)
 
     if client is not None:
-        db = client.get_database()
+        db = client
         if collection_name in db.list_collection_names():
             return db[collection_name]
         else:
