@@ -17,7 +17,7 @@ limitations under the License.
 from typing import Union, Optional, Any
 from pymongo.typings import _DocumentType
 import pymongo
-import bako.src.db.client as client
+import bako.src.db.utils as db_utils
 
 class BakoModel(object):
     """
@@ -35,14 +35,13 @@ class BakoModel(object):
         raise (handshake error on unsuccessful connection to the collection) 
     """
 
-    def __init__(self, client_name: str, collection: str, **kwargs) -> None:
+    def __init__(self, database_name: str, collection_name: str, **kwargs) -> None:
         """Set model collection and fields"""
 
-        self.collection = client.collection(collection, client_name)
+        self.collection = db_utils.get_collection(collection_name, database_name=database_name)
 
-        if not self.collection: # FIXME: yields error None comparison
-            # TODO log error
-            raise Exception("Handshake error, unable to access")
+        #if not self.collection: (not needed)
+        #    raise Exception("Handshake error, unable to access")
 
         self.model_fields = kwargs
         self.selected = None # FIXME: cursor selected (item)
