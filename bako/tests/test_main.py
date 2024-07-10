@@ -66,6 +66,6 @@ class DButilsTest(unittest.TestCase):
         """
         drop_database(database_name=cfg.DEV_CLIENT_NAME)
         self.assertFalse(exist_database(database_name=cfg.DEV_CLIENT_NAME))
-    
+
 if __name__ == '__main__':
     unittest.main()
