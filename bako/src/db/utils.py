@@ -1,0 +1,136 @@
+"""
+Copyright 2024 RobotsMali.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+
+from typing import Optional
+import pymongo
+import pymongo.collection
+import pymongo.database
+from bako.utils import config as cfg
+
+def client_connect(db_uri: str = cfg.CLUSTER_URI) -> Optional[pymongo.MongoClient]:
+    """Function to connect to MongoDB
+
+    Args:
+        db_uri (str, optional): The MongoDB cluster uri. Defaults to constant cfg.CLUSTER_URI \
+            (MongoDB deployment hosted on MongoDB Atlas, could be a localhost deployment)
+        
+    Returns:
+        Optional[pymongo.MongoClient]: A MongoClient
+    """
+    client = pymongo.MongoClient(db_uri, serverSelectionTimeoutMS=5000)
+        
+    try:
+        # Connect the client to the server (optional starting in v4.7)
+        # client.connect() should be optional with our version of pymongo
+        # Send a ping to confirm a successful connection
+        client.admin.command({'ping': 1})
+        print("Pinged your deployment. You successfully connected to MongoDB!")
+        return client
+    except (pymongo.errors.PyMongoError) as e:
+        print(f"PyMongo Exception '{e}' occured when trying to connect to MongoDB, \
+            function client_connect returned None!")
+        return None
+
+def exist_collection(collection_name: str, database_name: str,
+                     db_uri: str = cfg.CLUSTER_URI) -> bool:
+    """Returns whether or not a collection exists in a given database
+
+    Args:
+        collection_name (str): The collection name
+        database_name (str): The name of the database
+        db_uri (str, optional): The cluster uri for connecting a client. Defaults to cfg.CLUSTER_URI
+
+    Returns:
+        bool: _description_
+    """
+    client = client_connect(db_uri=db_uri)
+    return True if collection_name in client[database_name].list_collection_names() else False
+
+def exist_database(database_name: str, db_uri: str = cfg.CLUSTER_URI) -> bool:
+    """Returns whether or not a database exists in the MongoDB Cluster
+
+    Args:
+        database_name (str): The name of the database
+        db_uri (str, optional): The cluster uri for connecting a client. Defaults to cfg.CLUSTER_URI
+
+    Returns:
+        bool: _description_
+    """
+    client = client_connect(db_uri=db_uri)
+    return True if database_name in client.list_database_names() else False
+
+def drop_collection(collection_name: str, database_name: str,
+                      db_uri: str = cfg.CLUSTER_URI) -> None:
+    """Delete a collection if it exists in a database 
+
+    Args:
+        collection_name (str): _description_
+        database_name (str): The name of the database that has the wanted collection
+        db_uri (str, optional): The cluster uri for connecting a client. Defaults to cfg.CLUSTER_URI
+
+    Returns:
+        None: This function doesn't return anything
+    """
+    client = client_connect(db_uri=db_uri)
+
+    db = client.get_database(name=database_name)
+    if collection_name in db.list_collection_names():
+        db.drop_collection(name_or_collection=collection_name)
+
+def drop_database(database_name: str, db_uri: str = cfg.CLUSTER_URI) -> None:
+    """Delete a database from the MongoDB Cluster if it exists
+
+    Args:
+        database_name (str): _description_
+        db_uri (str, optional): _description_. Defaults to cfg.CLUSTER_URI.
+    """
+    client = client_connect(db_uri=db_uri)
+    if database_name in client.list_database_names():
+        client.drop_database(name_or_database=database_name)
+
+def get_collection(collection_name: str, database_name: str,
+                   db_uri: str = cfg.CLUSTER_URI) -> Optional[pymongo.collection.Collection]:
+    """Returns a PyMongo collection if it exist and create it else
+
+    Args:
+        collection_name (str): The name of the collection we want to access
+        db_uri (str, optional): The cluster uri for connecting a client. Defaults to cfg.CLUSTER_URI
+        database_name (str): The name of the database that has the wanted collection
+
+    Returns:
+        Optional[pymongo.collection.Collection]: A PyMongo Collection object
+    """
+    client = client_connect(db_uri=db_uri)
+
+    db = client.get_database(name=database_name)
+    # This line will implicitly create the collection when we first insert data into it
+    return db[collection_name]
+
+def get_database(database_name: str,
+                 db_uri: str = cfg.CLUSTER_URI) -> Optional[pymongo.database.Database]:
+    """Returns a PyMongo Database if it exist in the cluster
+
+    Args:
+        db_uri (str, optional): The cluster uri for connecting a client. Defaults to cfg.CLUSTER_URI
+        database_name (str): The name of the database that has the wanted collection
+
+    Returns:
+        Optional[pymongo.database.Database]: A PyMongo Database
+    """
+    client = client_connect(db_uri=db_uri)
+    if database_name in client.list_database_names():
+        return client[database_name]
+    
