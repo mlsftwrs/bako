@@ -18,6 +18,7 @@ from typing import Optional
 import pymongo
 import pymongo.collection
 import pymongo.database
+import pymongo.errors
 from bako.utils import config as cfg
 
 def client_connect(db_uri: str = cfg.CLUSTER_URI) -> Optional[pymongo.MongoClient]:
@@ -57,7 +58,10 @@ def exist_collection(collection_name: str, database_name: str,
         bool: _description_
     """
     client = client_connect(db_uri=db_uri)
-    return True if collection_name in client[database_name].list_collection_names() else False
+    exists = True if collection_name in client[database_name].list_collection_names() else False
+    # It is considered good practice to ensure the connection is closed when we are done with the client
+    client.close()
+    return exists
 
 def exist_database(database_name: str, db_uri: str = cfg.CLUSTER_URI) -> bool:
     """Returns whether or not a database exists in the MongoDB Cluster
@@ -70,7 +74,9 @@ def exist_database(database_name: str, db_uri: str = cfg.CLUSTER_URI) -> bool:
         bool: _description_
     """
     client = client_connect(db_uri=db_uri)
-    return True if database_name in client.list_database_names() else False
+    exists = True if database_name in client.list_database_names() else False
+    client.close()
+    return exists
 
 def drop_collection(collection_name: str, database_name: str,
                       db_uri: str = cfg.CLUSTER_URI) -> None:
@@ -89,6 +95,8 @@ def drop_collection(collection_name: str, database_name: str,
     db = client.get_database(name=database_name)
     if collection_name in db.list_collection_names():
         db.drop_collection(name_or_collection=collection_name)
+    # close connection
+    client.close()
 
 def drop_database(database_name: str, db_uri: str = cfg.CLUSTER_URI) -> None:
     """Delete a database from the MongoDB Cluster if it exists
@@ -100,10 +108,11 @@ def drop_database(database_name: str, db_uri: str = cfg.CLUSTER_URI) -> None:
     client = client_connect(db_uri=db_uri)
     if database_name in client.list_database_names():
         client.drop_database(name_or_database=database_name)
+    client.close()
 
 def get_collection(collection_name: str, database_name: str,
                    db_uri: str = cfg.CLUSTER_URI) -> Optional[pymongo.collection.Collection]:
-    """Returns a PyMongo collection if it exist and create it else
+    """Returns a PyMongo collection if it exist and a lazy collection else
 
     Args:
         collection_name (str): The name of the collection we want to access
@@ -116,12 +125,17 @@ def get_collection(collection_name: str, database_name: str,
     client = client_connect(db_uri=db_uri)
 
     db = client.get_database(name=database_name)
-    # This line will implicitly create the collection when we first insert data into it
-    return db[collection_name]
+    # This line will return a reference of collections which do not exist the database
+    # The actual collection will be created when we first insert data into it
+    # Thus no need to check whether the collection exists or not before doing this (we won't get any keyword error)
+    collection = db[collection_name]
+    # close connection
+    client.close()
+    return collection
 
 def get_database(database_name: str,
                  db_uri: str = cfg.CLUSTER_URI) -> Optional[pymongo.database.Database]:
-    """Returns a PyMongo Database if it exist in the cluster
+    """Returns a PyMongo Database if it exist in the cluster and a lazy database else
 
     Args:
         db_uri (str, optional): The cluster uri for connecting a client. Defaults to cfg.CLUSTER_URI
@@ -131,6 +145,9 @@ def get_database(database_name: str,
         Optional[pymongo.database.Database]: A PyMongo Database
     """
     client = client_connect(db_uri=db_uri)
-    if database_name in client.list_database_names():
-        return client[database_name]
+    # The same logic as for collections
+    # Note that is line is equivalent to "client.get_database(name=database_name)"
+    db = client[database_name]
+    client.close()
+    return db
     
