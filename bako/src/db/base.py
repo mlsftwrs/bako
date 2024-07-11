@@ -15,6 +15,7 @@ limitations under the License.
 """
 
 from typing import Union, Optional, Any
+import pymongo.results
 from pymongo.typings import _DocumentType
 import pymongo
 import bako.src.db.utils as db_utils
@@ -27,12 +28,6 @@ class BakoModel(object):
         client: DB name [str]
         collection: DB collection name [str]
         kwargs: Model's required attributes, in key, value format, if set.
-        create: Create document
-        retrieve: Retrieve single document
-        retrieve_all:
-
-    Exception:
-        raise (handshake error on unsuccessful connection to the collection) 
     """
 
     def __init__(self, database_name: str, collection_name: str, **kwargs) -> None:
