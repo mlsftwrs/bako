@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from typing import Union, Optional, Any
-import pymongo.results
+from typing import Union, Optional
 from pymongo.typings import _DocumentType
+import pymongo.results
 import pymongo
 import bako.src.db.utils as db_utils
 
@@ -25,18 +25,16 @@ class BakoModel(object):
     Define a base abstract Model
 
     Attributes:
-        client: DB name [str]
-        collection: DB collection name [str]
+        database_name (str): DB name
+        collection_name (str): DB collection name
         kwargs: Model's required attributes, in key, value format, if set.
     """
 
     def __init__(self, database_name: str, collection_name: str, **kwargs) -> None:
-        """Set model collection and fields"""
+        """The constructor special method"""
 
-        self.collection = db_utils.get_collection(collection_name, database_name=database_name)
-
-        #if not self.collection: (not needed)
-        #    raise Exception("Handshake error, unable to access")
+        self.collection_name = collection_name
+        self.database_name = database_name
 
         self.model_fields = kwargs
         self.selected = None # FIXME: cursor selected (item)
@@ -44,73 +42,97 @@ class BakoModel(object):
         for attr, value in kwargs.items():
             self.__setattr__(attr, value)
 
-    def create(
-            self,
-            data: dict,
-            *,
-            unique: Optional[str]=None) -> Union[None, pymongo.results.InsertOneResult]:
+    def create(self, data: dict, *,
+               unique: Optional[str]=None) -> pymongo.results.InsertOneResult:
         """
-        Create collection document
+        Create a new document in a collection
 
         Args:
-            data: dictionary object of item to insert
-            unique: document field to look for redundacy
+            data (dict): dictionary object of item to insert
+            unique (bool | None): document field to look for redundacy. Defaults to None.
 
         Returns:
             None: Collection or Dupplicate error
             pymongo.results.InsertOneResult
         """
-        if(
-            self.collection and not self.dupplicate_check(
-                unique, data[unique])):
-            return self.collection.insert_one(data)
-        return None
+        if unique:
+            assert self.dupplicate_check(unique, data[unique]), f"Field {unique} is supposed should\
+            be unique but there is already a document with {unique} = {data[unique]}"
 
-    def retrieve(self, fil: dict=None) -> Union[None, _DocumentType]:
+        return db_utils.insert(data=data, collection_name=self.collection_name,
+                                   database_name=self.database_name)
+
+    def insert(self, data: Union[dict, list[dict]], unique: Optional[str]=None
+               ) -> Union[pymongo.results.InsertOneResult, pymongo.results.InsertManyResult]:
+        """Insert one or more document into a collection.
+
+        Args:
+            data (dict | list[dict]): The documents to insert in the collection
+            unique (Optional[str]): document field to look for redundacy.Defaults to None.
+
+        Returns:
+            Union[pymongo.results.InsertOneResult, pymongo.results.InsertManyResult]
         """
-        Retrieve a single document
+        if unique:
+            assert self.dupplicate_check(unique, data[unique]), f"Field {unique} is supposed should\
+            be unique but there is already a document with {unique} = {data[unique]}"
+
+        return db_utils.insert(data=data, collection_name=self.collection_name,
+                                   database_name=self.database_name)
+
+    # I'm not sure this return type is actuallly correct
+    def retrieve(self, fil: dict = None, limit_one: bool = False) -> _DocumentType:
+        """
+        Retrieve the documents that match the filter
 
         Args:
             filter: Dictionary based Key-Value filter 
                     for retrieving element - {key: value}
+            limit_one (Optional[bool]): Whether to stop searching at the first element or return\
+                all document the match the filter
         Returns:
-            None: On item not found or collection error
             _DocumentType: pymongo Document type
         """
-        return self.collection.find_one(fil)
+        return db_utils.find(fil=fil, collection_name=self.collection_name,
+                             database_name=self.database_name, limit_one=limit_one)
 
-    def retrieve_all(self, fil: dict=None) -> Optional[list]:
-        """
-        Retrieve all documents or all documents matching filter
+    def change_values(self, fil: dict, update_data: dict, 
+                      update_one: bool = True) -> pymongo.results.UpdateResult:
+        """Set the values of the fields in update_data with the corresponding values
 
         Args:
-            filter: Dictionary based Key-Value
-        
+            fil (dict): Dictionary based Key-Value filter 
+            update_data (dict): A dictionary of the fields to update with their values.
+            update_one (bool, optional): Whether to update just the first element that match the filter. Defaults to True.
+
         Returns:
-            None: On collection error
-            list: list of _DocumentType (dicts)
+            pymongo.results.UpdateResult: _description_
         """
-        return list[self.collection.find(fil)]
+        return db_utils.update(fil=fil, collection_name=self.collection_name,
+                database_name=self.database_name, update_data=update_data, update_one=update_one)
+    def delete(self, fil: dict, delete_one: bool = True) -> pymongo.results.DeleteResult:
+        """Delete the documents that match the filter
 
-    def update(self, fil, update_data):
-        """
-        """
-        return self.collection.update_one(fil, {"$set": update_data})
+        Args:
+            fil (dict): Dictionary based Key-Value filter 
+            delete_one (bool, optional): Whether to delete just the first element that match the filter. Defaults to True.
 
-    def delete(self, fil):
+        Returns:
+            pymongo.results.DeleteResult: _description_
         """
-        """
-        return self.collection.delete_many(fil)
+        return db_utils.delete(fil=fil, collection_name=self.collection_name,
+                               database_name=self.database_name, delete_one=delete_one)
 
     def document(self, **kwargs) -> dict:
-        """
+        """???
         """
         return {}
 
     def dupplicate_check(self, unique_field, value) -> bool:
-        """ """
-        result = self.retrieve({unique_field: value})
-        return True if result else False
+        """Check if a document with unique_field=value already exists
+        """
+        result = self.retrieve(fil={unique_field: value}, limit_one=True)
+        return bool(result)
 
     @property
     def next(self):
