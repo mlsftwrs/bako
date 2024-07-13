@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from typing import Optional
-import pymongo
+from typing import Optional, Union
+import pymongo.results
 import pymongo.collection
 import pymongo.database
 import pymongo.errors
@@ -150,4 +150,98 @@ def get_database(database_name: str,
     db = client[database_name]
     client.close()
     return db
-    
+
+def insert(data: Union[dict, list[dict]], collection_name: str, database_name: str
+           ) -> Union[pymongo.results.InsertOneResult, pymongo.results.InsertManyResult]:
+    """Insert one or more new document in a collection
+        
+    Args:
+        data (dict | list[dict]): The dictionary of fields and values of the new document. 
+            The insert method used will depend on the type of thd argument "data".
+        collection_name (str): The name of the collection we want to access
+        database_name (str): The name of the database that has the wanted collection
+
+    Returns:
+        pymongo.collection.Collection: 
+    """
+    client = client_connect()
+    db = client[database_name]
+    collection = db[collection_name]
+    if isinstance(data, list):
+        collection = collection.insert_many(data)
+    else: collection = collection.insert_one(document=data)
+    client.close()
+    return collection
+
+def find(fil: dict, collection_name: str, database_name: str, limit_one: bool = False):
+    """Find documents in a collection that match the pattern specified with "fil"
+
+    Args:
+        fil (dict): Dictionary of fields and values describing the pattern
+        collection_name (str): The name of the collection we want to access
+        database_name (str): The name of the database that has the wanted collection
+        limit_one (bool, optional): Whether to return only the first document that matches the \
+            pattern. Defaults to False.
+
+    Returns:
+        pymongo.collection.Collection: _description_
+    """
+    client = client_connect()
+    db = client[database_name]
+    collection = db[collection_name]
+    matches = collection.find_one(fil) if limit_one else collection.find(fil)
+    client.close()
+    return matches
+
+def update(fil: dict, collection_name: str, database_name: str,
+           update_data: dict, update_one: bool = True) -> pymongo.results.UpdateResult:
+    """Update one or more documents in a collection that match the filter
+
+    Args:
+        fil (dict): Dictionary of fields and values describing the filter.
+        update_data (dict): Dictionary of fields and values to update.
+        collection_name (str): The name of the collection we want to access.
+        database_name (str): The name of the database that has the wanted collection.
+        update_one (bool, optional): Whether to update only the first document that matches the 
+            filter. Defaults to True.
+
+    Returns:
+        pymongo.results.UpdateResult: The result of the update operation.
+    """
+    client = client_connect()
+    db = client[database_name]
+    collection = db[collection_name]
+
+    if update_one:
+        result = collection.update_one(fil, {'$set': update_data})
+    else:
+        result = collection.update_many(fil, {'$set': update_data})
+
+    client.close()
+    return result
+
+def delete(fil: dict, collection_name: str, database_name: str,
+           delete_one: bool = True) -> pymongo.results.DeleteResult:
+    """Delete one or more documents in a collection that match the filter
+
+    Args:
+        fil (dict): Dictionary of fields and values describing the filter.
+        collection_name (str): The name of the collection we want to access.
+        database_name (str): The name of the database that has the wanted collection.
+        delete_one (bool, optional): Whether to delete only the first document that matches the
+            filter. Defaults to True.
+
+    Returns:
+        pymongo.results.DeleteResult: The result of the delete operation.
+    """
+    client = client_connect()
+    db = client[database_name]
+    collection = db[collection_name]
+
+    if delete_one:
+        result = collection.delete_one(fil)
+    else:
+        result = collection.delete_many(fil)
+
+    client.close()
+    return result
