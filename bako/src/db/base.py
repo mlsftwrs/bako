@@ -96,7 +96,7 @@ class BakoModel(object):
         return db_utils.find(fil=fil, collection_name=self.collection_name,
                              database_name=self.database_name, limit_one=limit_one)
 
-    def change_values(self, fil: dict, update_data: dict, 
+    def change_values(self, fil: dict, update_data: dict,
                       update_one: bool = True) -> pymongo.results.UpdateResult:
         """Set the values of the fields in update_data with the corresponding values
 
