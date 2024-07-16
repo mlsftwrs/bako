@@ -19,7 +19,7 @@ limitations under the License.
 import unittest
 from bako.utils import config as cfg
 from bako.src.db.utils import drop_collection, drop_database, get_database, get_collection,\
-    client_connect, exist_collection, exist_database
+    client_connect, exist_collection, exist_database, insert, find, update, delete
 
 class DButilsTest(unittest.TestCase):
     """A test case class where each method is a unit test
@@ -32,15 +32,32 @@ class DButilsTest(unittest.TestCase):
         client = client_connect()
         self.assertIsNotNone(client)
 
-    def test_05_exist_collection(self):
-        """Test the exist collection function
+    def test_04_insert(self):
+        """Test the insertion function
         """
-        self.assertFalse(exist_collection("book", database_name=cfg.DEV_CLIENT_NAME))
+        result = insert({"author": "Yacouba Diarra", "title": "And What's Beyond the Infinity?"},
+                        collection_name="book", database_name=cfg.DEV_CLIENT_NAME)
+        print(result)
+        self.assertTrue(exist_database(database_name=cfg.DEV_CLIENT_NAME))
+        self.assertTrue(exist_collection("book", database_name=cfg.DEV_CLIENT_NAME))
 
-    def test_04_exist_databae(self):
-        """Test the exist database function
+    def test_05_update_and_find(self):
+        """Test the update function"""
+        result = update(fil={"author": "Yacouba Diarra"}, collection_name="book",
+                        database_name=cfg.DEV_CLIENT_NAME, update_data={"author": "Diarray"})
+        print(result)
+        self.assertIsNotNone(result)
+        self.assertIsNotNone(find(fil={"author": "Diarray"}, collection_name="book",
+                        database_name=cfg.DEV_CLIENT_NAME))
+
+    def test_06_delete_document(self):
+        """Test delete function
         """
-        self.assertFalse(exist_database(database_name=cfg.DEV_CLIENT_NAME))
+        result = delete(fil={"author": "Diarray"}, collection_name="book",
+                        database_name=cfg.DEV_CLIENT_NAME)
+        print(result)
+        self.assertIsNone(find(fil={"author": "Diarray"}, collection_name="book",
+                        database_name=cfg.DEV_CLIENT_NAME, limit_one=True))
 
     def test_03_get_collection(self):
         """Test the collection creation/ retrieval function
@@ -55,13 +72,13 @@ class DButilsTest(unittest.TestCase):
         database = get_database(database_name=cfg.DEV_CLIENT_NAME)
         self.assertIsNotNone(database)
 
-    def test_06_drop_collection(self):
+    def test_07_drop_collection(self):
         """Test the drop_collection function
         """
         drop_collection(collection_name="book", database_name=cfg.DEV_CLIENT_NAME)
         self.assertFalse(exist_collection("book", database_name=cfg.DEV_CLIENT_NAME))
 
-    def test_07_drop_database(self):
+    def test_08_drop_database(self):
         """Test the drop database function
         """
         drop_database(database_name=cfg.DEV_CLIENT_NAME)
