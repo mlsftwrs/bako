@@ -14,20 +14,113 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import datetime
 from bako.src.db import base
-
+from bako.utils.config import DEV_CLIENT_NAME
 
 class UserModel(base.BakoModel):
-    """ """
+    """Base class for user models inheriting from BakoModel
+    
+    Args:
+        user_name (str): Unique username ID field
+        first_name (str): The first name of the user
+        surname (str): The User's surname
+        collection_name (str): The name of the collection to which this object belongs
+        database_name (str): The name of the database to which this collection belongs
+    """
+    def __init__(self, username: str, firstname: str, surname: str,
+                 collection_name: str, database_name: str, password: str, **kwargs) -> None:
+        """Constructor method to create a User object
 
-    def __init__(self, collection, **kwargs) -> None:
-        """ """
-        super().__init__(collection, **kwargs)
-
+        Args:
+            user_name (str): Unique username ID field
+            firstname (str): The first name of the user
+            surname (str): The User's surname
+            collection_name (str): The name of the collection to which this object belongs
+            database_name (str): The name of the database to which this collection belongs
+        """
+        super().__init__(collection_name=collection_name, database_name=database_name, **kwargs)
+        self.username = username
+        self.firstname = firstname
+        self.surname = surname
+        self.password = password
 
 class AdminUser(UserModel):
-    pass
+    """Admin user model
+    
+    Args:
+        username (str): Unique username ID field
+        firstname (str): The first name of the user
+        surname (str): The User's surname
+        email (str): The email of the admin User
+        collection_name (str, optional): The name of the collection to which this object belongs. Defaults to "admin".
+        database_name (str, optional): The name of the database to which this collection belongs. Defaults to DEV_CLIENT_NAME.
+    """
+    def __init__(self, username: str, firstname: str, surname: str,
+                 email: str, password: str, collection_name: str = "admins",
+                 database_name: str = DEV_CLIENT_NAME, **kwargs) -> None:
+        """_summary_
 
+        Args:
+            username (str): Unique username ID field
+            firstname (str): The first name of the user
+            surname (str): The User's surname
+            email (str): The email of the admin User
+            collection_name (str, optional): The name of the collection to which this object belongs. Defaults to "admin".
+            database_name (str, optional): The name of the database to which this collection belongs. Defaults to DEV_CLIENT_NAME.
+        """
+        super().__init__(username=username, firstname=firstname, surname=surname, password=password,
+                         collection_name=collection_name, database_name=database_name, **kwargs)
+        self.email = email
+        self.assigned_readers = []
+
+    def assign_book(self, reader_user_id: str, book_id: int):
+        # Implement the logic to assign a book to a reader user
+        pass
+
+    def view_assigned_books(self, reader_user_id: str):
+        # Implement the logic to view books assigned to a particular reader
+        pass
+
+    def remove_assigned_book(self, reader_user_id: str, book_id: int):
+        # Implement the logic to remove a book from a reader's assigned list
+        pass
 
 class ReaderUser(UserModel):
-    pass
+    """Reader user model
+    
+    Args:
+        username (str): Unique username ID field
+        firstname (str): The first name of the user
+        surname (str): The User's surname
+        birthdate (datetime.date): The kid's date of birth
+        collection_name (str, optional): The name of the collection to which this object belongs. Defaults to "reader".
+        database_name (_type_, optional): The name of the database to which this collection belongs. Defaults to DEV_CLIENT_NAME.
+    """
+    def __init__(self, username: str, firstname: str, surname: str, password: str,
+                 birthdate: datetime.date, collection_name: str = "readers",
+                 database_name = DEV_CLIENT_NAME, **kwargs) -> None:
+        """_summary_
+
+        Args:
+            username (str): Unique username ID field
+            firstname (str): The first name of the user
+            surname (str): The User's surname
+            birthdate (datetime.date): The kid's date of birth
+            collection_name (str, optional): The name of the collection to which this object belongs. Defaults to "reader".
+            database_name (_type_, optional): The name of the database to which this collection belongs. Defaults to DEV_CLIENT_NAME.
+        """
+        super().__init__(firstname=firstname, surname=surname, username=username, password=password,
+                         collection_name=collection_name, database_name=database_name**kwargs)
+        self.birthdate = birthdate
+        self.reader_xp = 0
+        self.assigned_books = []
+        self.completed_books = []
+
+    def view_assigned_books(self):
+        # Implement the logic to view the books assigned to the reader
+        pass
+
+    def mark_book_as_completed(self, book_id: int):
+        # Implement the logic to mark a book as completed by the reader
+        pass
