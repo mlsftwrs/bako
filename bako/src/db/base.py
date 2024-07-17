@@ -37,30 +37,10 @@ class BakoModel(object):
         self.database_name = database_name
 
         self.model_fields = kwargs
-        self.selected = None # FIXME: cursor selected (item)
+        self.selected = None # FIXME: cursor selected (item) ??
 
         for attr, value in kwargs.items():
             self.__setattr__(attr, value)
-
-    def create(self, data: dict, *,
-               unique: Optional[str]=None) -> pymongo.results.InsertOneResult:
-        """
-        Create a new document in a collection
-
-        Args:
-            data (dict): dictionary object of item to insert
-            unique (bool | None): document field to look for redundacy. Defaults to None.
-
-        Returns:
-            None: Collection or Dupplicate error
-            pymongo.results.InsertOneResult
-        """
-        if unique:
-            assert self.dupplicate_check(unique, data[unique]), f"Field {unique} is supposed should\
-            be unique but there is already a document with {unique} = {data[unique]}"
-
-        return db_utils.insert(data=data, collection_name=self.collection_name,
-                                   database_name=self.database_name)
 
     def insert(self, data: Union[dict, list[dict]], unique: Optional[str]=None
                ) -> Union[pymongo.results.InsertOneResult, pymongo.results.InsertManyResult]:
@@ -74,8 +54,13 @@ class BakoModel(object):
             Union[pymongo.results.InsertOneResult, pymongo.results.InsertManyResult]
         """
         if unique:
-            assert self.dupplicate_check(unique, data[unique]), f"Field {unique} is supposed should\
-            be unique but there is already a document with {unique} = {data[unique]}"
+            if isinstance(data, dict):
+                assert self.dupplicate_check(unique, data[unique]), f"Field {unique} is supposed\
+                    should be unique but there is already a document with {unique} = {data[unique]}"
+            elif isinstance(data, list):
+                for doc in data:
+                    assert self.dupplicate_check(unique, doc[unique]), f"Field {unique} is\
+                    supposed should be unique but there is already a document with {unique} = {doc[unique]}"
 
         return db_utils.insert(data=data, collection_name=self.collection_name,
                                    database_name=self.database_name)
@@ -123,10 +108,10 @@ class BakoModel(object):
         return db_utils.delete(fil=fil, collection_name=self.collection_name,
                                database_name=self.database_name, delete_one=delete_one)
 
-    def document(self, **kwargs) -> dict:
-        """???
+    def to_document(self) -> dict:
+        """Return a document from the object
         """
-        return {}
+        return self.__dict__
 
     def dupplicate_check(self, unique_field, value) -> bool:
         """Check if a document with unique_field=value already exists
@@ -136,5 +121,7 @@ class BakoModel(object):
 
     @property
     def next(self):
-        """ Cursor selection property () """
+        """_summary_
+        """
+        # Not implemented
         pass
