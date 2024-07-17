@@ -32,7 +32,7 @@ def client_connect(db_uri: str = cfg.CLUSTER_URI) -> Optional[pymongo.MongoClien
         Optional[pymongo.MongoClient]: A MongoClient
     """
     client = pymongo.MongoClient(db_uri, serverSelectionTimeoutMS=5000)
-        
+
     try:
         # Connect the client to the server (optional starting in v4.7)
         # client.connect() should be optional with our version of pymongo
