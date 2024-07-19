@@ -15,7 +15,8 @@ limitations under the License.
 """
 import unittest
 import sys
-from bako.tests.test_main import DButilsTest
+from bako.tests.test_dbutils import DButilsTest
+from bako.tests.test_models import TestCaseModels
 
 def test_db_utils():
     """_summary_
@@ -23,9 +24,15 @@ def test_db_utils():
     suite = unittest.TestLoader().loadTestsFromTestCase(DButilsTest)
     unittest.TextTestRunner().run(suite)
 
+def test_models():
+    """_summary_
+    """
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestCaseModels)
+    unittest.TextTestRunner().run(suite)
+
 # A dictionary which keys are available commands and values are another dictionary of options-descriptions pairs
 # This cli tools, for now, only demonstrate the unit tests of the database utility functions
-COMMAND = {"unittest": {"db_utils": test_db_utils}, }
+COMMAND = {"unittest": {"db_utils": test_db_utils, "models": test_models}, }
 HELP_SHORTCUTS = ["-h", "help", "--help"]
 
 def print_help_message():
