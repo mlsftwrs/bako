@@ -27,7 +27,7 @@ class Book(BakoModel):
         collection_name (str, optional): _description_. Defaults to "books".
     """
     def __init__(self, title: str, content: list[str], database_name: str = DEV_CLIENT_NAME,
-                 collection_name: str = "books", **kwargs) -> None:
+                 collection_name: str = "books") -> None:
         """_summary_
 
         Args:
@@ -36,6 +36,6 @@ class Book(BakoModel):
             database_name (str, optional): _description_. Defaults to DEV_CLIENT_NAME.
             collection_name (str, optional): _description_. Defaults to "books".
         """
-        super().__init__(database_name, collection_name, **kwargs)
+        super().__init__(database_name, collection_name)
         self.title = title
         self.content = content
