@@ -17,48 +17,68 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import unittest
-from bako.src.db.models import AdminUser, ReaderUser, Book
+from bako.src.db.models import ReaderUser, Book
 import bako.src.db.utils as db_utils
-from bako.utils.config import DEV_CLIENT_NAME
 
 class TestCaseModels(unittest.TestCase):
     """A test case class for the Classes defined in bako.src.db.models
     """
-    def test_01_create_admin(self):
+    def test_01_create_reader(self):
         """Test Admin object and document creation and 
         """
-        admin = AdminUser(username="admin1", firstname="Seb", surname="Diarra", email="x@gmail.com",
-                          password="12345")
-        insert_result = admin.create_doc(unique="username")
+        reader = ReaderUser(username="diarray", firstname="Yac", surname="Diarra", password="12345")
+        insert_result = reader.create_doc()
         print(insert_result)
         self.assertIsNotNone(insert_result)
 
     def test_02_from_doc_update(self):
         """Test .update() and .from_doc() methods BakoModel
         """
-        admin1 = db_utils.find(fil={"username": "admin1"}, collection_name="admins",
-                               database_name=DEV_CLIENT_NAME, limit_one=True)
-        admin = AdminUser.from_doc(doc=admin1, database_name=DEV_CLIENT_NAME, collection_name="admins")
-        print(admin.id, admin.username)
-        admin.firstname = "Sebastien"
-        update_result = admin.update()
+        reader = db_utils.find(fil={"username": "diarray"},
+                               collection_name=ReaderUser.collection_name,
+                               database_name=ReaderUser.database_name, limit_one=True)
+        reader = ReaderUser.from_doc(doc=reader)
+        print(reader.id, reader.username)
+        reader.firstname = "Yacouba"
+        update_result = reader.update()
         print(update_result)
         self.assertTrue(update_result.modified_count > 0)
 
-    def test_03_create_reader(self):
-        """Test Reader object and document creation and 
+    def test_03_bookmark_inc_readerxp(self):
+        """BookMarking methods and increase reader_xp 
         """
-        reader = ReaderUser(username="fdiarra", firstname="Fanta", surname="Diarra",
-                          birthdate="2017-10-5", password="12345")
-        insert_result = reader.create_doc(unique="username")
+        reader = db_utils.find(fil={"username": "diarray"},
+                               collection_name=ReaderUser.collection_name,
+                               database_name=ReaderUser.database_name, limit_one=True)
+        reader = ReaderUser.from_doc(doc=reader)
+        reader.bookmark(book_title="One Piece", book_page_ref="Page 114")
+        reader.mark_book_as_completed(book_title="Naruto")
+        reader.increase_xp(xp_to_add=15)
+        print(reader.to_doc())
+        update_result = reader.update()
+        self.assertTrue(update_result.modified_count > 0)
+    
+    def test_04_create_book(self):
+        """Test Book creation """
+        book = Book(title="One piece", content={"page0": ["", ""]})
+        insert_result = book.create_doc()
         print(insert_result)
         self.assertIsNotNone(insert_result)
+    
+    def test_05_bookclass_methods(self):
+        """Test the class methods of Book
+        """
+        num_book = Book.get_num_books()
+        self.assertEqual(num_book, 1)
+        books = Book.list_books()
+        print(books)
+        self.assertIsNotNone(books)
 
     def test_reset(self):
         """Reset MongoBD"""
-        db_utils.drop_collection(collection_name="admins", database_name=DEV_CLIENT_NAME)
-        self.assertFalse(db_utils.exist_collection("admins", database_name=DEV_CLIENT_NAME))
-        db_utils.drop_collection(collection_name="readers", database_name=DEV_CLIENT_NAME)
-        self.assertFalse(db_utils.exist_collection("readers", database_name=DEV_CLIENT_NAME))
-        db_utils.drop_database(database_name=DEV_CLIENT_NAME)
-        self.assertFalse(db_utils.exist_database(database_name=DEV_CLIENT_NAME))
+        db_utils.drop_collection(collection_name=ReaderUser.collection_name, database_name=ReaderUser.database_name)
+        self.assertFalse(db_utils.exist_collection(ReaderUser.collection_name, database_name=ReaderUser.database_name))
+        db_utils.drop_collection(collection_name=Book.collection_name, database_name=Book.database_name)
+        self.assertFalse(db_utils.exist_collection(Book.collection_name, database_name=Book.database_name))
+        db_utils.drop_database(database_name=ReaderUser.database_name)
+        self.assertFalse(db_utils.exist_database(database_name=ReaderUser.database_name))
