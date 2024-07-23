@@ -17,6 +17,7 @@ import unittest
 import sys
 from bako.tests.test_dbutils import DButilsTest
 from bako.tests.test_models import TestCaseModels
+from bako.cli.book import add_books_to_mongodb
 
 def test_db_utils():
     """_summary_
@@ -32,7 +33,8 @@ def test_models():
 
 # A dictionary which keys are available commands and values are another dictionary of options-descriptions pairs
 # This cli tools, for now, only demonstrate the unit tests of the database utility functions
-COMMAND = {"unittest": {"db_utils": test_db_utils, "models": test_models}, }
+COMMAND = {"unittest": {"db_utils": test_db_utils, "models": test_models}, 
+           "add-books": add_books_to_mongodb}
 HELP_SHORTCUTS = ["-h", "help", "--help"]
 
 def print_help_message():
@@ -46,6 +48,9 @@ def print_help_message():
       
       unittest: Perform unit testing of the functions and methods 
       defined in the module speficified as option (should be one of available module aliases)
+      
+      add-books: Adds new books to the book collection in our MongoDB deployment,
+      needs the path to an excel file containing the texts from the books to add
     """
     print(help_message)
 
@@ -70,6 +75,12 @@ def main():
         else:
             for alias in args[2:]:
                 COMMAND['unittest'][alias]()
+    elif args[1] == "add-books":
+        if len(args) < 3:
+            print("Missing the path to the excel file containing the texts from the books to add")
+        else:
+            for path in args[2:]:
+                COMMAND["add-books"](path)
 
 if __name__ == "__main__":
     main()
