@@ -25,14 +25,13 @@ class BakoModel(object):
     Attributes:
         database_name (str): DB name
         collection_name (str): DB collection name
-        id (ObjectId): The _id of the document if it is been creat
+        id (ObjectId): The _id of the document if it has already been created
     """
+    database_name: str = None
+    collection_name: str = None
 
-    def __init__(self, database_name: str, collection_name: str, _id = None) -> None:
+    def __init__(self, _id = None) -> None:
         """The constructor special method"""
-
-        self.collection_name = collection_name
-        self.database_name = database_name
         self.__id = _id
 
     def create_doc(self, unique: str = None) -> pymongo.results.InsertOneResult:
@@ -43,8 +42,7 @@ class BakoModel(object):
             unique (str, optional): document field to look for redundacy. Defaults to None.
         """
         doc = self.to_doc()
-        print(doc)
-        
+
         if unique:
             assert not self.dupplicate_check(unique_field=unique, value=doc[unique]), f"Field {unique}\
                 should be unique but there is already a document with {unique} = {doc[unique]}"
@@ -54,10 +52,7 @@ class BakoModel(object):
         return insert_result
 
     def update(self) -> pymongo.results.UpdateResult:
-        """Commit updates to MongoDB
-
-        Args:
-            fil (dict): A filter for this instance current state in our MongoDB deployment 
+        """Commit updates to MongoDB 
 
         Returns:
             pymongo.results.UpdateResult
@@ -70,9 +65,6 @@ class BakoModel(object):
         """Return a document dictionary from the object
         """
         doc = self.__dict__.copy()
-        # I don't think it's relevant to have those informations saved in the collection
-        doc.pop("collection_name")
-        doc.pop("database_name")
         # ID is already immutable and present in MongoDB
         doc.pop("_BakoModel__id")
         return doc
@@ -90,15 +82,8 @@ class BakoModel(object):
         """
         return self.__id
 
-    @property
-    def next(self):
-        """_summary_
-        """
-        # Not implemented
-        pass
-
     @classmethod
-    def from_doc(cls, doc: dict, database_name: str, collection_name: str):
+    def from_doc(cls, doc: dict):
         """Create an instance from a saved document
 
         Args:
@@ -106,5 +91,4 @@ class BakoModel(object):
             database_name (str): The name of the database from which this document comes from
             collection_name (str): The name of the collection from which this document comes from
         """
-        return cls(database_name=database_name, collection_name=collection_name, **doc)
-    
+        return cls(**doc)
