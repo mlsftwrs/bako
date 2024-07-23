@@ -13,37 +13,99 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-
-import datetime
+from pymongo.results import InsertOneResult
 from bako.src.db import base
-from bako.utils.config import DEV_CLIENT_NAME
+import bako.utils.config as cfg
 
 class UserModel(base.BakoModel):
     """Base class for user models inheriting from BakoModel
     
     Args:
-        user_name (str): Unique username ID field
-        first_name (str): The first name of the user
+        username (str): Unique username ID field
+        firstname (str): The first name of the user
         surname (str): The User's surname
+        password (str): The User's Password
         collection_name (str): The name of the collection to which this object belongs
         database_name (str): The name of the database to which this collection belongs
     """
-    def __init__(self, username: str, firstname: str, surname: str, password: str,
-                collection_name: str, database_name: str, _id = None) -> None:
+    def __init__(self, username: str, firstname: str, surname: str, password: str, _id = None) -> None:
         """Constructor method to create a User object
 
         Args:
-            user_name (str): Unique username ID field
+            username (str): Unique username ID field
             firstname (str): The first name of the user
             surname (str): The User's surname
+            password (str): The User's Password
             collection_name (str): The name of the collection to which this object belongs
             database_name (str): The name of the database to which this collection belongs
         """
-        super().__init__(collection_name=collection_name, database_name=database_name, _id=_id)
+        super().__init__(_id=_id)
         self.username = username
         self.firstname = firstname
         self.surname = surname
         self.password = password
+
+    def create_doc(self, unique: str = "username") -> InsertOneResult:
+        return super().create_doc(unique)
+
+class ReaderUser(UserModel):
+    """Reader user model
+    
+    Args:
+        username (str): Unique username ID field
+        firstname (str): The first name of the user (Optional)
+        surname (str): The User's surname (Optional)
+        collection_name (str, optional): The name of the collection to which\
+            this object belongs. Defaults to cfg.COL_USER.
+        database_name (_type_, optional): The name of the database to which\
+            this collection belongs. Defaults to cfg.DEV_CLIENT_NAME.
+    """
+    collection_name : str = cfg.COL_USER
+    database_name : str = cfg.DEV_CLIENT_NAME
+    def __init__(self, username: str, password: str, firstname: str = None, surname: str = None,
+                 reader_xp: int = 0, in_progress_books: list = None,
+                 completed_books: list = None, _id = None) -> None:
+        """_summary_
+
+        Args:
+            username (str): Unique username ID field
+            firstname (str): The first name of the user (Optional)
+            surname (str): The User's surname (Optional)
+            collection_name (str, optional): The name of the collection to which\
+                this object belongs. Defaults to cfg.COL_USER.
+            database_name (_type_, optional): The name of the database to which\
+                this collection belongs. Defaults to cfg.DEV_CLIENT_NAME.
+        """
+        super().__init__(firstname=firstname, surname=surname, username=username,
+                         password=password, _id=_id)
+        self.reader_xp = reader_xp
+        self.in_progress_books = in_progress_books if in_progress_books else []
+        self.completed_books = completed_books if completed_books else []
+
+    def bookmark(self, book_title: str, book_page_ref: str) -> None:
+        """BookMark an in progress book in order to resume reading
+
+        Args:
+            book_title (str): The title of the book
+            book_page_ref (str): The page ref for the bookmark
+        """
+        self.in_progress_books.append({book_title: book_page_ref})
+
+    def mark_book_as_completed(self, book_title: str):
+        """Mark a book as completed (Should reflect on UI)
+
+        Args:
+            book_title (str): The title of the book
+        """
+        self.completed_books.append(book_title)
+
+    def increase_xp(self, xp_to_add: int):
+        """Increment the performance measure of the reader
+
+        Args:
+            xp_to_add (int): The ammount of XP to add
+        """
+        self.reader_xp += xp_to_add
 
 class AdminUser(UserModel):
     """Admin user model
@@ -56,11 +118,12 @@ class AdminUser(UserModel):
         collection_name (str, optional): The name of the collection to which\
             this object belongs. Defaults to "admin".
         database_name (str, optional): The name of the database to which\
-            this collection belongs. Defaults to DEV_CLIENT_NAME.
+            this collection belongs. Defaults to cfg.DEV_CLIENT_NAME.
     """
-    def __init__(self, username: str, firstname: str, surname: str, email: str,
-                 password: str, _id = None, collection_name: str = "admins",
-                 database_name: str = DEV_CLIENT_NAME, assigned_readers: list = None) -> None:
+    collection_name: str = None
+    database_name: str = cfg.DEV_CLIENT_NAME
+    def __init__(self, username: str, password: str, _id = None, firstname: str = None, 
+                 surname: str = None, email: str = None, assigned_readers: list = None) -> None:
         """_summary_
 
         Args:
@@ -73,8 +136,8 @@ class AdminUser(UserModel):
             database_name (str, optional): The name of the database to which\
                 this collection belongs. Defaults to DEV_CLIENT_NAME.
         """
-        super().__init__(username=username, firstname=firstname, surname=surname, password=password,
-                         collection_name=collection_name, database_name=database_name, _id=_id)
+        super().__init__(username=username, firstname=firstname, surname=surname,
+                         password=password, _id=_id)
         self.email = email
         self.assigned_readers = assigned_readers if assigned_readers else []
 
@@ -88,48 +151,4 @@ class AdminUser(UserModel):
 
     def remove_assigned_book(self, reader_username: str, book_id):
         # Implement the logic to remove a book from a reader's assigned list
-        pass
-
-class ReaderUser(UserModel):
-    """Reader user model
-    
-    Args:
-        username (str): Unique username ID field
-        firstname (str): The first name of the user
-        surname (str): The User's surname
-        birthdate (str): The kid's date of birth (YYYY-MM-DD)
-        collection_name (str, optional): The name of the collection to which\
-            this object belongs. Defaults to "reader".
-        database_name (_type_, optional): The name of the database to which\
-            this collection belongs. Defaults to DEV_CLIENT_NAME.
-    """
-    def __init__(self, username: str, firstname: str, surname: str, password: str,
-                 birthdate: str, collection_name: str = "readers", reader_xp: int = 0,
-                 database_name = DEV_CLIENT_NAME, assigned_books: list = None,
-                 completed_books: list = None, _id = None) -> None:
-        """_summary_
-
-        Args:
-            username (str): Unique username ID field
-            firstname (str): The first name of the user
-            surname (str): The User's surname
-            birthdate (datetime.date): The kid's date of birth
-            collection_name (str, optional): The name of the collection to which\
-                this object belongs. Defaults to "reader".
-            database_name (_type_, optional): The name of the database to which\
-                this collection belongs. Defaults to DEV_CLIENT_NAME.
-        """
-        super().__init__(firstname=firstname, surname=surname, username=username, password=password,
-                         collection_name=collection_name, database_name=database_name, _id=_id)
-        self.birthdate = birthdate
-        self.reader_xp = reader_xp
-        self.assigned_books = assigned_books if assigned_books else []
-        self.completed_books = completed_books if completed_books else []
-
-    def view_assigned_books(self):
-        # Implement the logic to view the books assigned to the reader
-        pass
-
-    def mark_book_as_completed(self, book_id):
-        # Implement the logic to mark a book as completed by the reader
         pass
