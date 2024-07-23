@@ -47,5 +47,5 @@ LOG_TEST_FILE = PJ(LOG_MAIN_DIR, "bako.test.log")
 BDX = "tdx"  # Bako INDEX [Overwrite ObjectID]
 
 # Collection IDs
-COL_USER = "bako_user"
-COL_BOOK = "bako_book"
+COL_USER = "bako_users"
+COL_BOOK = "bako_books"
