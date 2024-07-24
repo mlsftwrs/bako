@@ -82,14 +82,19 @@ class ReaderUser(UserModel):
         self.in_progress_books = in_progress_books if in_progress_books else []
         self.completed_books = completed_books if completed_books else []
 
-    def bookmark(self, book_title: str, book_page_ref: str) -> None:
+    def bookmark(self, book_title: str, book_page_ref: str):
         """BookMark an in progress book in order to resume reading
 
         Args:
             book_title (str): The title of the book
             book_page_ref (str): The page ref for the bookmark
         """
+        for bookmarked in self.in_progress_books:
+            if book_title in bookmarked:
+                bookmarked[book_title] = book_page_ref
+                return self.update()
         self.in_progress_books.append({book_title: book_page_ref})
+        return self.update()
 
     def mark_book_as_completed(self, book_title: str):
         """Mark a book as completed (Should reflect on UI)
@@ -97,7 +102,12 @@ class ReaderUser(UserModel):
         Args:
             book_title (str): The title of the book
         """
+        for bookmarked in self.in_progress_books:
+            if book_title in bookmarked:
+                self.in_progress_books.remove(bookmarked)
+
         self.completed_books.append(book_title)
+        return self.update()
 
     def increase_xp(self, xp_to_add: int):
         """Increment the performance measure of the reader
@@ -106,6 +116,7 @@ class ReaderUser(UserModel):
             xp_to_add (int): The ammount of XP to add
         """
         self.reader_xp += xp_to_add
+        return self.update()
 
 class AdminUser(UserModel):
     """Admin user model
