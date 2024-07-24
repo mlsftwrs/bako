@@ -33,7 +33,7 @@ def test_models():
 
 # A dictionary which keys are available commands and values are another dictionary of options-descriptions pairs
 # This cli tools, for now, only demonstrate the unit tests of the database utility functions
-COMMAND = {"unittest": {"db_utils": test_db_utils, "models": test_models}, 
+COMMAND = {"unittest": {"db_utils": test_db_utils, "models": test_models},
            "add-books": add_books_to_mongodb}
 HELP_SHORTCUTS = ["-h", "help", "--help"]
 
@@ -77,7 +77,7 @@ def main():
                 COMMAND['unittest'][alias]()
     elif args[1] == "add-books":
         if len(args) < 3:
-            print("Missing the path to the excel file containing the texts from the books to add")
+            print("Missing the paths to the excel files containing the texts from the books to add")
         else:
             for path in args[2:]:
                 COMMAND["add-books"](path)
