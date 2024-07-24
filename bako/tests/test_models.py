@@ -1,5 +1,4 @@
-#!/home/diarray/office/BambaraLiteracyApp/venv/bin/python
-### You should change the path above to your python interpreter path before running the script
+#!/usr/bin/env python
 
 """
 Copyright 2024 RobotsMali.
