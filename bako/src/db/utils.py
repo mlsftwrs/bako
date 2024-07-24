@@ -178,7 +178,8 @@ def insert(data: Union[dict, list[dict]], collection_name: str, database_name: s
     client.close()
     return collection
 
-def find(fil: dict, collection_name: str, database_name: str, limit_one: bool = False):
+def find(fil: dict, collection_name: str, database_name: str, limit_one: bool = False
+         ) -> Union[dict, list, None]:
     """Find documents in a collection that match the pattern specified with "fil"
 
     Args:
