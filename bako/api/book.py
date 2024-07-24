@@ -25,7 +25,7 @@ def get_book(title: str) -> dict:
     book_doc = db_utils.find(fil={"title": title}, collection_name=Book.collection_name,
                              database_name=Book.database_name, limit_one=True)
     if book_doc is None:
-        return {"status": False, "msg": "No book with this title in the catalog"}
+        return {"status": False, "msg": "No book with this title in the catalog", "data": None}
 
     data = book_doc.copy()
     data.pop("_id")

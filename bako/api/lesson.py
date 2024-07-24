@@ -69,7 +69,7 @@ def calculate_score(username: str, book_title: str,
     user_doc = db_utils.find(fil={"username": username}, collection_name=ReaderUser.collection_name,
                              database_name=ReaderUser.database_name, limit_one=True)
     reader_user = ReaderUser.from_doc(doc=user_doc)
-    xp_to_add = 5 if book_title in reader_user.completed_books else 15
+    xp_to_add = 15
     reader_user.increase_xp(xp_to_add=xp_to_add)
     data = reader_user.to_doc()
     data.pop("password")

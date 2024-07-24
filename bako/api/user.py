@@ -32,9 +32,9 @@ def create_reader_account(username: str, password: str,
     new_reader = ReaderUser(username=username, password=password, firstname=firstname, surname=surname)
     try:
         new_reader.create_doc()
-        return {"status": True, "msg": "New account succesfully created"}
+        return {"status": True, "msg": "New account succesfully created", "data": None}
     except AssertionError:
-        return {"status": False, "msg": "Username Unavailable"}
+        return {"status": False, "msg": "Username Unavailable", "data": None}
 
 def login_reader_user(username: str, password: str) -> dict:
     """Reader User Login
@@ -49,9 +49,9 @@ def login_reader_user(username: str, password: str) -> dict:
     doc = db_utils.find(fil={"username": username}, collection_name=ReaderUser.collection_name,
                         database_name=ReaderUser.database_name, limit_one=True)
     if doc is None:
-        return {"status": False, "msg": "This account doesn't exist"}
+        return {"status": False, "msg": "This account doesn't exist", "data": None}
     elif doc["password"] != password:
-        return {"status": False, "msg": "Password incorrect"}
+        return {"status": False, "msg": "Password incorrect", "data": None}
     else:
         doc = doc.copy()
         doc.pop("_id")
@@ -73,7 +73,7 @@ def edit_username(current_username: str, new_username: str, password: str) -> di
                         collection_name=ReaderUser.collection_name,
                         database_name=ReaderUser.database_name, limit_one=True)
     if password != doc['password']:
-        return {"status": False, "msg": "Password incorrect"}
+        return {"status": False, "msg": "Password incorrect", "data": None}
 
     reader_user = ReaderUser.from_doc(doc=doc)
     reader_user.username = new_username
@@ -97,7 +97,7 @@ def edit_password(username: str, current_password: str, new_password: str) -> di
                         collection_name=ReaderUser.collection_name,
                         database_name=ReaderUser.database_name, limit_one=True)
     if current_password != doc['password']:
-        return {"status": False, "msg": "Confirmation Password incorrect"}
+        return {"status": False, "msg": "Confirmation Password incorrect", "data": None}
 
     reader_user = ReaderUser.from_doc(doc=doc)
     reader_user.password = new_password
@@ -119,9 +119,9 @@ def delete_account(username: str, password: str) -> dict:
     doc = db_utils.find(fil={"username": username}, collection_name=ReaderUser.collection_name,
                         database_name=ReaderUser.database_name, limit_one=True)
     if password != doc["password"]:
-        return {"status": False, "msg": "Confirmation Password incorrect"}
+        return {"status": False, "msg": "Confirmation Password incorrect", "data": None}
 
     db_utils.delete(fil={"username": username}, collection_name=ReaderUser.collection_name,
                         database_name=ReaderUser.database_name)
-    return {"status": True, "msg": "This account has been deleted"}
+    return {"status": True, "msg": "This account has been deleted", "data": None}
     
