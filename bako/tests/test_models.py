@@ -51,12 +51,11 @@ class TestCaseModels(unittest.TestCase):
                                collection_name=ReaderUser.collection_name,
                                database_name=ReaderUser.database_name, limit_one=True)
         reader = ReaderUser.from_doc(doc=reader)
-        reader.bookmark(book_title="One Piece", book_page_ref="Page 114")
-        reader.mark_book_as_completed(book_title="Naruto")
-        reader.increase_xp(xp_to_add=15)
-        print(reader.to_doc())
-        update_result = reader.update()
-        self.assertTrue(update_result.modified_count > 0)
+        update_result = reader.bookmark(book_title="One Piece", book_page_ref="Page 114")
+        update_result2 = reader.mark_book_as_completed(book_title="Naruto")
+        update_result3 = reader.increase_xp(xp_to_add=15)
+        self.assertTrue(all((update_result.modified_count, update_result2.matched_count,
+                            update_result3.modified_count)) > 0)
     
     def test_04_create_book(self):
         """Test Book creation """
