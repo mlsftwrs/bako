@@ -69,6 +69,12 @@ def edit_username(current_username: str, new_username: str, password: str) -> di
     Returns:
         dict
     """
+    username_already_inuse = doc = db_utils.find(fil={"username": new_username},
+                        collection_name=ReaderUser.collection_name,
+                        database_name=ReaderUser.database_name, limit_one=True)
+    if username_already_inuse:
+        return {"status": False, "msg": "Username Unavailable", "data": None}
+
     doc = db_utils.find(fil={"username": current_username},
                         collection_name=ReaderUser.collection_name,
                         database_name=ReaderUser.database_name, limit_one=True)
