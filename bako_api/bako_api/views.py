@@ -32,9 +32,9 @@ def create_account(request: django.http.request.HttpRequest) -> JsonResponse:
         JsonResponse: _description_
     """
     if request.method == 'POST':
-        user_data = json.loads(request.body)
+        user_data = json.loads(request.body.decode('utf-8'))
         result = create_reader_account(**user_data)
-        return JsonResponse(result)
+        return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
 
 @csrf_exempt
 def login(request: django.http.request.HttpRequest) -> JsonResponse:
@@ -47,9 +47,9 @@ def login(request: django.http.request.HttpRequest) -> JsonResponse:
         _type_: _description_
     """
     if request.method == "POST":
-        login_data = json.loads(request.body)
+        login_data = json.loads(request.body.decode('utf-8'))
         result = login_reader_user(**login_data)
-        return JsonResponse(result)
+        return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
 
 @csrf_exempt
 def change_username(request: django.http.request.HttpRequest) -> JsonResponse:
@@ -62,9 +62,9 @@ def change_username(request: django.http.request.HttpRequest) -> JsonResponse:
         _type_: _description_
     """
     if request.method == 'POST':
-        username_data = json.loads(request.body)
+        username_data = json.loads(request.body.decode('utf-8'))
         result = edit_username(**username_data)
-        return JsonResponse(result)
+        return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
 
 @csrf_exempt
 def change_password(request: django.http.request.HttpRequest) -> JsonResponse:
@@ -77,9 +77,9 @@ def change_password(request: django.http.request.HttpRequest) -> JsonResponse:
         _type_: _description_
     """
     if request.method == 'POST':
-        data = json.loads(request.body)
+        data = json.loads(request.body.decode('utf-8'))
         result = edit_password(**data)
-        return JsonResponse(result)
+        return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
 
 @csrf_exempt
 def account_deletion(request: django.http.request.HttpRequest) -> JsonResponse:
@@ -92,9 +92,9 @@ def account_deletion(request: django.http.request.HttpRequest) -> JsonResponse:
         _type_: _description_
     """
     if request.method == 'POST':
-        account_deletion_data = json.loads(request.body)
+        account_deletion_data = json.loads(request.body.decode('utf-8'))
         result = delete_account(**account_deletion_data)
-        return JsonResponse(result)
+        return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
 
 @csrf_exempt
 def score_calculation(request: django.http.request.HttpRequest) -> JsonResponse:
@@ -107,9 +107,9 @@ def score_calculation(request: django.http.request.HttpRequest) -> JsonResponse:
         JsonResponse: _description_
     """
     if request.method == 'POST':
-        score_data = json.loads(request.body)
+        score_data = json.loads(request.body.decode('utf-8'))
         result = calculate_score(**score_data)
-        return JsonResponse(result)
+        return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
 
 @csrf_exempt
 def get_book_endpoint(request: django.http.request.HttpRequest) -> JsonResponse:
@@ -122,9 +122,9 @@ def get_book_endpoint(request: django.http.request.HttpRequest) -> JsonResponse:
         JsonResponse: _description_
     """
     if request.method == "POST":
-        book_data = json.loads(request.body)
+        book_data = json.loads(request.body.decode('utf-8'))
         result = get_book(**book_data)
-        return JsonResponse(result)
+        return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
 
 @csrf_exempt
 def mark_book_as_inprogress(request: django.http.request.HttpRequest) -> JsonResponse:
@@ -137,9 +137,9 @@ def mark_book_as_inprogress(request: django.http.request.HttpRequest) -> JsonRes
         JsonResponse: _description_
     """
     if request.method == "POST":
-        data = json.loads(request.body)
+        data = json.loads(request.body.decode('utf-8'))
         result = bookmark(**data)
-        return JsonResponse(result)
+        return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
 
 @csrf_exempt
 def book_completed(request: django.http.request.HttpRequest) -> JsonResponse:
@@ -152,9 +152,9 @@ def book_completed(request: django.http.request.HttpRequest) -> JsonResponse:
         JsonResponse: _description_
     """
     if request.method == "POST":
-        data = json.loads(request.body)
+        data = json.loads(request.body.decode('utf-8'))
         result = mark_book_as_completed(**data)
-        return JsonResponse(result)
+        return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
 
 @csrf_exempt
 def catalog(request: django.http.request.HttpRequest) -> JsonResponse:
@@ -168,4 +168,4 @@ def catalog(request: django.http.request.HttpRequest) -> JsonResponse:
     """
     if request.method == "POST":
         result = get_catalog()
-        return JsonResponse(result)
+        return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
