@@ -19,7 +19,7 @@ import django.http
 from django.views.decorators.csrf import csrf_exempt
 from bako.api import create_reader_account, login_reader_user, delete_account,\
     mark_book_as_completed, bookmark, get_book, get_catalog, calculate_score,\
-    edit_password, edit_username
+    edit_password, edit_username, get_user_data
 
 @csrf_exempt
 def create_account(request: django.http.request.HttpRequest) -> JsonResponse:
@@ -49,6 +49,21 @@ def login(request: django.http.request.HttpRequest) -> JsonResponse:
     if request.method == "POST":
         login_data = json.loads(request.body.decode('utf-8'))
         result = login_reader_user(**login_data)
+        return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
+
+@csrf_exempt
+def get_user_data_endpoint(request: django.http.request.HttpRequest) -> JsonResponse:
+    """get_user_data endpoint
+
+    Args:
+        request (django.http.request.HttpRequest): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    if request.method == "POST":
+        data = json.loads(request.body.decode('utf-8'))
+        result = get_user_data(**data)
         return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
 
 @csrf_exempt
