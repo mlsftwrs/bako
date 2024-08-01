@@ -58,6 +58,26 @@ def login_reader_user(username: str, password: str) -> dict:
         doc.pop("password")
         return {"status": True, "msg": "Login Succesful", "data": doc}
 
+def get_user_data(username: str) -> dict:
+    """Returns the data of a specific user | Implicitly suppose user has already logged in!
+
+    Args:
+        username (str):  The username of the Reader
+
+    Returns:
+        dict
+    """
+    doc = db_utils.find(fil={"username": username}, collection_name=ReaderUser.collection_name,
+                        database_name=ReaderUser.database_name, limit_one=True)
+    if doc is None:
+        return {"status": False, "msg": "This account doesn't exist", "data": None}
+
+    doc = doc.copy()
+    doc.pop("_id")
+    doc.pop("password")
+    return {"status": True, "msg": "Login Succesful", "data": doc}
+
+
 def edit_username(current_username: str, new_username: str, password: str) -> dict:
     """Edit the username of a user
 
