@@ -75,7 +75,7 @@ def get_user_data(username: str) -> dict:
     doc = doc.copy()
     doc.pop("_id")
     doc.pop("password")
-    return {"status": True, "msg": "Login Succesful", "data": doc}
+    return {"status": True, "msg": "User Retrieved", "data": doc}
 
 
 def edit_username(current_username: str, new_username: str, password: str) -> dict:
