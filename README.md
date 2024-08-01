@@ -39,6 +39,17 @@ http://127.0.0.1:8000
   - `msg` (string): A message describing the result
   - `data` (dict, optional): User data (document) if login is successful
 
+#### Get User Data
+
+- **URL**: `/user/`
+- **Method**: POST
+- **Parameters**:
+  - `username` (string): The username of the Reader
+- **Response**:
+  - `status` (bool): Indicates success or failure
+  - `msg` (string): A message describing the result
+  - `data` (dict, optional): User data (document) if retrieval is successful.
+
 #### Change Username
 
 - **URL**: `/change_username/`
