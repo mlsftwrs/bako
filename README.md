@@ -88,7 +88,7 @@ http://127.0.0.1:8000
   - `msg` (string): A message describing the result
   - `data` (NoneType): No data returned
 
-#### Get Book
+#### Get Book (deprecated)
 
 - **URL**: `/book/`
 - **Method**: `POST`
@@ -99,7 +99,7 @@ http://127.0.0.1:8000
   - `msg` (string): A message describing the result
   - `data` (dict, optional): Book data if retrieval is successful
 
-#### Get Catalog
+#### Get Catalog (deprecated)
 
 - **URL**: `/catalog/`
 - **Method**: `POST`
