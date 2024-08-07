@@ -18,8 +18,7 @@ from django.http import JsonResponse
 import django.http
 from django.views.decorators.csrf import csrf_exempt
 from bako.api import create_reader_account, login_reader_user, delete_account,\
-    mark_book_as_completed, bookmark, get_book, get_catalog, calculate_score,\
-    edit_password, edit_username, get_user_data
+    mark_book_as_completed, bookmark, edit_password, edit_username, get_user_data
 
 @csrf_exempt
 def create_account(request: django.http.request.HttpRequest) -> JsonResponse:
@@ -112,36 +111,6 @@ def account_deletion(request: django.http.request.HttpRequest) -> JsonResponse:
         return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
 
 @csrf_exempt
-def score_calculation(request: django.http.request.HttpRequest) -> JsonResponse:
-    """Calculate score endpoint
-
-    Args:
-        request (django.http.request.HttpRequest): _description_
-
-    Returns:
-        JsonResponse: _description_
-    """
-    if request.method == 'POST':
-        score_data = json.loads(request.body.decode('utf-8'))
-        result = calculate_score(**score_data)
-        return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
-
-@csrf_exempt
-def get_book_endpoint(request: django.http.request.HttpRequest) -> JsonResponse:
-    """Get book endpoint
-
-    Args:
-        request (django.http.request.HttpRequest): _description_
-
-    Returns:
-        JsonResponse: _description_
-    """
-    if request.method == "POST":
-        book_data = json.loads(request.body.decode('utf-8'))
-        result = get_book(**book_data)
-        return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
-
-@csrf_exempt
 def mark_book_as_inprogress(request: django.http.request.HttpRequest) -> JsonResponse:
     """Book Marking Endpoint
 
@@ -171,16 +140,3 @@ def book_completed(request: django.http.request.HttpRequest) -> JsonResponse:
         result = mark_book_as_completed(**data)
         return JsonResponse(result, json_dumps_params={'ensure_ascii': False})
 
-@csrf_exempt
-def catalog(request: django.http.request.HttpRequest) -> JsonResponse:
-    """Get catalog Endpoint
-    
-    Args:
-        request (django.http.request.HttpRequest): _description_
-
-    Returns:
-        JsonResponse: _description_
-    """
-    if request.method == "POST":
-        result = get_catalog()
-        return JsonResponse(result, json_dumps_params={'ensure_ascii': False})

@@ -29,6 +29,6 @@ urlpatterns = [
     # path("catalog/", views.catalog),
     path("bookmark/", views.mark_book_as_inprogress),
     path("book_completed/", views.book_completed),
-    path("calculate_score/", views.score_calculation),
+    # path("calculate_score/", views.score_calculation),
     path("user/", views.get_user_data_endpoint),
 ]
