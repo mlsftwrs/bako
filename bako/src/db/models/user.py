@@ -96,7 +96,7 @@ class ReaderUser(UserModel):
         self.in_progress_books.append({book_title: book_page_ref})
         return self.update()
 
-    def mark_book_as_completed(self, book_title: str):
+    def mark_book_as_completed(self, book_title: str, num_errors: int = None, reading_time: float = None):
         """Mark a book as completed (Should reflect on UI)
 
         Args:
@@ -106,15 +106,20 @@ class ReaderUser(UserModel):
             if book_title in bookmarked:
                 self.in_progress_books.remove(bookmarked)
 
-        self.completed_books.append(book_title)
+        if not book_title in self.completed_books:
+            self.completed_books.append(book_title)
+
+        self.increase_xp(num_errors=num_errors, reading_time=reading_time)
+
         return self.update()
 
-    def increase_xp(self, xp_to_add: int):
+    def increase_xp(self, num_errors: int = None, reading_time: float = None):
         """Increment the performance measure of the reader
 
         Args:
             xp_to_add (int): The ammount of XP to add
         """
+        xp_to_add = 10
         self.reader_xp += xp_to_add
         return self.update()
 
