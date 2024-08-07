@@ -35,7 +35,8 @@ def bookmark(username: str, book_title: str, book_page_ref: str) -> dict:
     data.pop("password")
     return {"status": True, "msg": "Book marked as In Progress", "data": data}
 
-def mark_book_as_completed(username: str, book_title: str) -> dict:
+def mark_book_as_completed(username: str, book_title: str,
+                            num_errors: int = None, reading_time: float = None) -> dict:
     """Mark a book as completed
 
     Args:
@@ -48,29 +49,8 @@ def mark_book_as_completed(username: str, book_title: str) -> dict:
     user_doc = db_utils.find(fil={"username": username}, collection_name=ReaderUser.collection_name,
                              database_name=ReaderUser.database_name, limit_one=True)
     reader_user = ReaderUser.from_doc(doc=user_doc)
-    reader_user.mark_book_as_completed(book_title=book_title)
+    reader_user.mark_book_as_completed(book_title=book_title,
+                                       num_errors=num_errors, reading_time=reading_time)
     data = reader_user.to_doc()
     data.pop("password")
     return {"status": True, "msg": "Book marked as Completed", "data": data}
-
-def calculate_score(username: str, book_title: str,
-                    num_errors: int = None, reading_time: float = None) -> dict:
-    """Calculate the amount of Xp gained from a lesson and add to user Xp
-
-    Args:
-        username (str): The name of the user
-        book_title (str): Title of the book
-        num_errors (int, optional): _description_. Defaults to None.
-        reading_time (float, optional): _description_. Defaults to None.
-
-    Returns:
-        dict
-    """
-    user_doc = db_utils.find(fil={"username": username}, collection_name=ReaderUser.collection_name,
-                             database_name=ReaderUser.database_name, limit_one=True)
-    reader_user = ReaderUser.from_doc(doc=user_doc)
-    xp_to_add = 15
-    reader_user.increase_xp(xp_to_add=xp_to_add)
-    data = reader_user.to_doc()
-    data.pop("password")
-    return {"status": True, "msg": f"You gained {xp_to_add} points of Xp", "data": data}
