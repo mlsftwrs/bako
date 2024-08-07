@@ -134,7 +134,7 @@ http://127.0.0.1:8000
   - `msg` (string): A message describing the result
   - `data` (dict, optional): Updated user data if marking as completed is successful
 
-#### Calculate Score
+#### Calculate Score (deprecated)
 
 - **URL**: `/calculate_score/`
 - **Method**: `POST`
