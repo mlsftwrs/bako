@@ -26,6 +26,11 @@ then
     rm -rf "./build"
 fi
 
+if [ -f "./bako_api/db.sqlite3" ];
+then
+    rm "./bako_api/db.sqlite3"
+fi
+
 for i in $(find . -name "*egg-info");
 do
     rm -rf $i

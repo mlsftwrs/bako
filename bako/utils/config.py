@@ -29,9 +29,11 @@ HOME_DIR = PJ(pathlib.Path.home(), "bako_home")
 DEV_CLIENT_NAME = "bakodb"
 
 ## Development Cluster URI
-DEV_URI = "mongodb+srv://mlsftwrs:oaGbSd3Doe5gYELG@bakorm0.kuowxyy.mongodb.net/?retryWrites=true&w=majority&appName=bakoRM0" #"mongodb://localhost:27017/"
+DEV_URI = "mongodb+srv://mlsftwrs:oaGbSd3Doe5gYELG@bakorm0.kuowxyy.mongodb.net/?\
+    retryWrites=true&w=majority&appName=bakoRM0" #"mongodb://localhost:27017/"
 # TOOD: Replace current PROD URI with Project PROD URI
-PROD_URI = "mongodb+srv://mlsftwrs:oaGbSd3Doe5gYELG@bakorm0.kuowxyy.mongodb.net/?retryWrites=true&w=majority&appName=bakoRM0"
+PROD_URI = "mongodb+srv://mlsftwrs:oaGbSd3Doe5gYELG@bakorm0.kuowxyy.mongodb.net/?\
+    retryWrites=true&w=majority&appName=bakoRM0"
 CLUSTER_URI = DEV_URI if DEV_STATE else PROD_URI
 
 # Loggging Configuration
@@ -45,5 +47,5 @@ LOG_TEST_FILE = PJ(LOG_MAIN_DIR, "bako.test.log")
 BDX = "tdx"  # Bako INDEX [Overwrite ObjectID]
 
 # Collection IDs
-COL_USER = "bako_user"
-COL_BOOK = "bako_book"
+COL_USER = "bako_users"
+COL_BOOK = "bako_books"

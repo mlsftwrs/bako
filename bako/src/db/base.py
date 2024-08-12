@@ -14,113 +14,81 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import client
+import pymongo.results
 import pymongo
-from pymongo.typings import _DocumentType
-from typing import Union, Optional, Any
-
+import bako.src.db.utils as db_utils
 
 class BakoModel(object):
     """
     Define a base abstract Model
 
     Attributes:
-        client: DB name [str]
-        collection: DB collection name [str]
-        kwargs: Model's required attributes, in key, value format, if set.
-        create: Create document
-        retrieve: Retrieve single document
-        retrieve_all:
-
-    Exception:
-        raise (handshake error on unsuccessful connection to the collection) 
+        database_name (str): DB name
+        collection_name (str): DB collection name
+        id (ObjectId): The _id of the document if it has already been created
     """
+    database_name: str = None
+    collection_name: str = None
 
-    def __init__(self, client_name: str, collection: str, **kwargs) -> None:
-        """Set model collection and fields"""
+    def __init__(self, _id = None) -> None:
+        """The constructor special method"""
+        self.__id = _id
 
-        self.collection = client.collection(collection, client_name)
-
-        if(not self.collection): # FIXME: yields error None comparison
-            # TODO: log error
-            raise Exception(
-                "Handshake error, unable to access")
-
-        self.model_fields = kwargs
-        self.selected = None # FIXME: cursor selected (item)
-
-        for attr in kwargs:
-            self.__setattr__(attr, kwargs[attr])
-
-    def create(
-            self, 
-            data: dict,
-            *, 
-            unique: Optional[str]=None) -> Union[None, pymongo.results.InsertOneResult]:
-        """
-        Create collection document
+    def create_doc(self, unique: str = None) -> pymongo.results.InsertOneResult:
+        """Insert a document in the corresponding collection for this instance
+        This method should be called only once for a given instance
 
         Args:
-            data: dictionary object of item to insert
-            unique: document field to look for redundacy
+            unique (str, optional): document field to look for redundacy. Defaults to None.
+        """
+        doc = self.to_doc()
+
+        if unique:
+            assert not self.dupplicate_check(unique_field=unique, value=doc[unique]), f"Field {unique}\
+                should be unique but there is already a document with {unique} = {doc[unique]}"
+        insert_result = db_utils.insert(data=doc, collection_name=self.collection_name,
+                               database_name=self.database_name)
+        self.__id = insert_result.inserted_id
+        return insert_result
+
+    def update(self) -> pymongo.results.UpdateResult:
+        """Commit updates to MongoDB 
 
         Returns:
-            None: Collection or Dupplicate error
-            pymongo.results.InsertOneResult
+            pymongo.results.UpdateResult
         """
-        if(
-            self.collection and not self.dupplicate_check(
-                unique, data[unique])):
-            return self.collection.insert_one(data)
-        return None
+        new_values = self.to_doc()
+        return db_utils.update(fil={"_id": self.id}, collection_name=self.collection_name,
+                               database_name=self.database_name, update_data=new_values)
 
-    def retrieve(self, filter: dict=None) -> Union[None, _DocumentType]:
+    def to_doc(self) -> dict:
+        """Return a document dictionary from the object
         """
-        Retrieve a single document
-
-        Args:
-            filter: Dictionary based Key-Value filter 
-                    for retrieving element - {key: value}
-        Returns:
-            None: On item not found or collection error
-            _DocumentType: pymongo Document type
-        """
-        return self.collection.find_one(filter)
-
-    def retrieve_all(self, filter: dict=None) -> Optional[list]:
-        """
-        Retrieve all documents or all documents matching filter
-
-        Args:
-            filter: Dictionary based Key-Value
-        
-        Returns:
-            None: On collection error
-            list: list of _DocumentType (dicts)
-        """
-        return list[self.collection.find(filter)]
-
-    def update(self, filter, update_data):
-        """
-        """
-        return self.collection.update_one(filter, {"$set": update_data})
-
-    def delete(self, filter):
-        """
-        """
-        return self.collection.delete_many(filter)
-
-    def document(self, **kwargs) -> dict:
-        """
-        """
-        return {}
+        doc = self.__dict__.copy()
+        # ID is already immutable and present in MongoDB
+        doc.pop("_BakoModel__id")
+        return doc
 
     def dupplicate_check(self, unique_field, value) -> bool:
-        """ """
-        result = self.retrieve({unique_field: value})
-        return True if result else False
+        """Check if a document with unique_field=value already exists
+        """
+        result = db_utils.find(fil={unique_field: value}, collection_name=self.collection_name,
+                             database_name=self.database_name, limit_one=True)
+        return bool(result)
 
     @property
-    def next(self):
-        """ Cursor selection property () """
-        pass
+    def id(self):
+        """Getter for self.__id
+        """
+        return self.__id
+
+    @classmethod
+    def from_doc(cls, doc: dict):
+        """Create an instance from a saved document
+
+        Args:
+            doc (dict): The document with the values for the attributes
+            database_name (str): The name of the database from which this document comes from
+            collection_name (str): The name of the collection from which this document comes from
+        """
+        return cls(**doc)

@@ -21,3 +21,8 @@
     }
 }
 ```
+
+### Get back to original design
+- No admin User
+- Reader sees a catalog of story books to pick from after login
+- No book is assigned but we keep track of completed and In progress books
