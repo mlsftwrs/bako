@@ -1,6 +1,6 @@
 # Bako: Voice-based Reading Assistance Library
 
-Bako is a library designed to provide voice-based reading assistance through a set of API endpoints. This README file will guide you through setting up the server, understanding the available endpoints, and the required configuration for development and deployment.
+This README file will guide you through setting up the server, understanding the available endpoints, and the required configuration for deployment.
 
 ## Table of Contents
 
