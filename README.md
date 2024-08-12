@@ -1,19 +1,35 @@
 # Bako: Voice-based Reading Assistance Library
 
-## TODO:
-- Logging Modules
+Bako is a library designed to provide voice-based reading assistance through a set of API endpoints. This README file will guide you through setting up the server, understanding the available endpoints, and the required configuration for development and deployment.
 
-## Bako API Pre-Documentation
+## Table of Contents
 
-### Server URL (Waiting for deployment)
+- [Installation](#installation)
+- [Launching the Local Server](#launching-the-local-server)
+- [API Endpoints](#api-endpoints)
+- [License](#license)
 
+## Installation
+
+Before you begin, ensure you have Python installed on your machine. Clone the repository and install the required dependencies:
+
+```bash
+git clone https://github.com/mlsftwrs/bako.git
+cd bako
+pip install . -r requirements.txt
 ```
-http://127.0.0.1:8000
+
+## Launching the Local Server
+
+You can launch the server using the following command:
+
+```bash
+python bako_api/manage.py runserver 192.168.0.66:8000
 ```
 
-### Endpoints
+## API Endpoints
 
-#### Account Creation
+### Account Creation
 
 - **URL**: `/account_creation/`
 - **Method**: `POST`
@@ -27,7 +43,7 @@ http://127.0.0.1:8000
   - `msg` (string): A message describing the result
   - `data` (NoneType): No data returned
 
-#### Login
+### Login
 
 - **URL**: `/login/`
 - **Method**: `POST`
@@ -37,9 +53,9 @@ http://127.0.0.1:8000
 - **Response**:
   - `status` (bool): Indicates success or failure
   - `msg` (string): A message describing the result
-  - `data` (dict, optional): User data (document) if login is successful
+  - `token` (string): Authentication token for further requests
 
-#### Get User Data
+### Get User Data
 
 - **URL**: `/user/`
 - **Method**: POST
@@ -50,7 +66,7 @@ http://127.0.0.1:8000
   - `msg` (string): A message describing the result
   - `data` (dict, optional): User data (document) if retrieval is successful.
 
-#### Change Username
+### Change Username
 
 - **URL**: `/change_username/`
 - **Method**: `POST`
@@ -63,7 +79,7 @@ http://127.0.0.1:8000
   - `msg` (string): A message describing the result
   - `data` (dict, optional): Updated user data if username change is successful
 
-#### Change Password
+### Change Password
 
 - **URL**: `/change_password/`
 - **Method**: `POST`
@@ -76,7 +92,7 @@ http://127.0.0.1:8000
   - `msg` (string): A message describing the result
   - `data` (dict, optional): Updated user data if password change is successful
 
-#### Account Deletion
+### Account Deletion
 
 - **URL**: `/account_deletion/`
 - **Method**: `POST`
@@ -88,7 +104,7 @@ http://127.0.0.1:8000
   - `msg` (string): A message describing the result
   - `data` (NoneType): No data returned
 
-#### Get Book (deprecated)
+### Get Book (deprecated)
 
 - **URL**: `/book/`
 - **Method**: `POST`
@@ -99,7 +115,7 @@ http://127.0.0.1:8000
   - `msg` (string): A message describing the result
   - `data` (dict, optional): Book data if retrieval is successful
 
-#### Get Catalog (deprecated)
+### Get Catalog (deprecated)
 
 - **URL**: `/catalog/`
 - **Method**: `POST`
@@ -109,7 +125,7 @@ http://127.0.0.1:8000
   - `msg` (string): A message describing the result
   - `data` (dict): Catalog data containing `num_books` and `titles`
 
-#### Bookmark
+### Bookmark
 
 - **URL**: `/bookmark/`
 - **Method**: `POST`
@@ -122,7 +138,7 @@ http://127.0.0.1:8000
   - `msg` (string): A message describing the result
   - `data` (dict, optional): Updated user data if bookmarking is successful
 
-#### Mark Book as Completed
+### Mark Book as Completed
 
 - **URL**: `/book_completed/`
 - **Method**: `POST`
@@ -134,7 +150,7 @@ http://127.0.0.1:8000
   - `msg` (string): A message describing the result
   - `data` (dict, optional): Updated user data if marking as completed is successful
 
-#### Calculate Score (deprecated)
+### Calculate Score (deprecated)
 
 - **URL**: `/calculate_score/`
 - **Method**: `POST`
@@ -148,43 +164,12 @@ http://127.0.0.1:8000
   - `msg` (string): A message describing the result
   - `data` (dict, optional): Updated user data if score calculation is successful
 
-### Example Request and Response
+## License
 
-#### Example Request for Account Creation
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-```json
-{
-  "username": "testuser",
-  "password": "password123",
-  "firstname": "John",
-  "surname": "Doe"
-}
-```
+---
 
-#### Example Response for Account Creation
+## TODO:
 
-```json
-{
-  "status": true,
-  "msg": "New account successfully created",
-  "data": null
-}
-```
-
-### Additional Information
-
-- All endpoints use the `POST` method and expect JSON-encoded request bodies.
-- Responses are JSON-encoded and include a `status` key to indicate success or failure and a `msg` key for a descriptive message and a `data` key with returned data from operations if any.
-
-This pre-documentation provides a concise overview of the available endpoints, their parameters, and expected responses. 
-
-### Notes for the front end
-
-- FrontEnd: One image per story book
-  - To simplify database design, each book will be accompanied with only one image (usually the cover image). This image should be stored by the application (on device).
-
-- FrontEnd: Story books are a scrollable list
-  - The story books view from the HomeScreen (once reader logged in) is a scrollable list made with the catalog.
-
-- FrontEnd: Story books should be visually distinguishable
-  - In-progress, completed, and not started books should be visually distinguishable on the UI.
+- Integrate Logging features
