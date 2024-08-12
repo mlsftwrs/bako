@@ -13,5 +13,33 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import logging
 
-# Logging features not implemented
+### Basic logging configuration
+
+CUSTOM_LOGGER = logging.getLogger(name=__name__)
+CUSTOM_LOGGER.setLevel("DEBUG")
+
+# Define Handlers
+console_handler = logging.StreamHandler()
+
+file_handler = logging.FileHandler(
+    filename=".app.log",
+    encoding="utf-8"
+)
+
+# Define a Unique Formatter
+formatter = logging.Formatter(
+    fmt="{asctime} - {levelname} - {filename} - {funcName} - {message}",
+    style="{",
+    datefmt="%Y-%m-%d %H:%M"
+)
+
+console_handler.setLevel("INFO")
+console_handler.setFormatter(formatter)
+file_handler.setLevel("DEBUG")
+file_handler.setFormatter(formatter)
+
+# Add Handlers
+CUSTOM_LOGGER.addHandler(console_handler)
+CUSTOM_LOGGER.addHandler(file_handler)
