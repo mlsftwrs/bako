@@ -17,7 +17,7 @@ limitations under the License.
 import pathlib
 
 # Development State
-DEV_STATE = 1  # Toggle 1 for development 0 for Production
+DEV_STATE = 0  # Toggle 1 for development 0 for Production
 
 # Main Working Directory
 PJ = pathlib.Path.joinpath
