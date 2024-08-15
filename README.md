@@ -24,7 +24,7 @@ pip install . -r requirements.txt
 You can launch the server using the following command:
 
 ```bash
-python bako_api/manage.py runserver 192.168.0.66:8000
+python bako_api/manage.py runserver 0.0.0.0:8000
 ```
 
 ## API Endpoints
