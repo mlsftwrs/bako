@@ -146,4 +146,3 @@ LOGGING = {
     },
 }
 
-CSRF_TRUSTED_ORIGINS = ['https://bako-api.onrender.com']
