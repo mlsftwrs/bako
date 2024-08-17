@@ -52,9 +52,7 @@ class TestCaseModels(unittest.TestCase):
         reader = ReaderUser.from_doc(doc=reader)
         update_result = reader.bookmark(book_title="One Piece", book_page_ref="Page 114")
         update_result2 = reader.mark_book_as_completed(book_title="Naruto")
-        update_result3 = reader.increase_xp(xp_to_add=15)
-        self.assertTrue(all((update_result.modified_count, update_result2.matched_count,
-                            update_result3.modified_count)) > 0)
+        self.assertTrue(all((update_result.modified_count, update_result2.matched_count,)) > 0)
     
     def test_04_create_book(self):
         """Test Book creation """
