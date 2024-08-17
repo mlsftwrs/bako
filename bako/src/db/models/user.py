@@ -82,7 +82,7 @@ class ReaderUser(UserModel):
         self.in_progress_books = in_progress_books if in_progress_books else []
         self.completed_books = completed_books if completed_books else []
 
-    def bookmark(self, book_title: str, book_page_ref: str):
+    def bookmark(self, book_title: str, book_page_ref: str, reading_time: int):
         """BookMark an in progress book in order to resume reading
 
         Args:
@@ -92,8 +92,9 @@ class ReaderUser(UserModel):
         for bookmarked in self.in_progress_books:
             if book_title in bookmarked:
                 bookmarked[book_title] = book_page_ref
+                bookmarked["reading_time"] = reading_time
                 return self.update()
-        self.in_progress_books.append({book_title: book_page_ref})
+        self.in_progress_books.append({book_title: book_page_ref, "reading_time": reading_time})
         return self.update()
 
     def mark_book_as_completed(self, book_title: str, num_errors: int = None, reading_time: float = None):

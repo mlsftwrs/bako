@@ -133,6 +133,7 @@ python bako_api/manage.py runserver 0.0.0.0:8000
   - `username` (string): The name of the user
   - `book_title` (string): Title of the book
   - `book_page_ref` (string): The page reference user stopped at
+  - `reading_time` (int): The number of seconds spent reading
 - **Response**:
   - `status` (bool): Indicates success or failure
   - `msg` (string): A message describing the result
@@ -145,6 +146,8 @@ python bako_api/manage.py runserver 0.0.0.0:8000
 - **Parameters**:
   - `username` (string): The name of the user
   - `book_title` (string): Title of the book
+  - `num_errors` (int, optional): Number of errors made
+  - `reading_time` (float, optional): Time taken to read (in minutes)
 - **Response**:
   - `status` (bool): Indicates success or failure
   - `msg` (string): A message describing the result
