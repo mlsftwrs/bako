@@ -16,7 +16,7 @@ limitations under the License.
 from bako.src.db.models import ReaderUser
 import bako.src.db.utils as db_utils
 
-def bookmark(username: str, book_title: str, book_page_ref: str) -> dict:
+def bookmark(username: str, book_title: str, book_page_ref: str, reading_time: int) -> dict:
     """Mark a book as inprogress (call when user stopped a lesson)
 
     Args:
@@ -30,7 +30,7 @@ def bookmark(username: str, book_title: str, book_page_ref: str) -> dict:
     user_doc = db_utils.find(fil={"username": username}, collection_name=ReaderUser.collection_name,
                              database_name=ReaderUser.database_name, limit_one=True)
     reader_user = ReaderUser.from_doc(doc=user_doc)
-    reader_user.bookmark(book_page_ref=book_page_ref, book_title=book_title)
+    reader_user.bookmark(book_page_ref=book_page_ref, book_title=book_title, reading_time=reading_time)
     data = reader_user.to_doc()
     data.pop("password")
     return {"status": True, "msg": "Book marked as In Progress", "data": data}
